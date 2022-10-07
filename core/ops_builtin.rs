@@ -1,5 +1,4 @@
 use crate::error::type_error;
-use crate::include_js_files;
 use crate::op_async;
 use crate::op_sync;
 use crate::ops_metrics::OpMetrics;
@@ -17,12 +16,13 @@ use std::rc::Rc;
 
 pub(crate) fn init_builtins() -> Extension {
   Extension::builder()
-    .js(include_js_files!(
-      prefix "deno:core",
-      "00_primordials.js",
-      "01_core.js",
-      "02_error.js",
-    ))
+    .js(
+      vec![
+        ("00_primordials.js", Box::new(||{Ok(include_str!("00_primordials.js").to_string())})),
+        ("01_core.js", Box::new(||{Ok(include_str!("01_core.js").to_string())})),
+        ("02_error.js", Box::new(||{Ok(include_str!("02_error.js").to_string())})),
+      ]
+    )
     .ops(vec![
       ("op_close", op_sync(op_close)),
       ("op_try_close", op_sync(op_try_close)),
